@@ -1,0 +1,19 @@
+# MATLAB autosave and crash files
+*.asv
+*.m~
+*.mlx.autosave
+*.mat.bak
+*.tmp
+*.log
+
+# MATLAB project and Simulink caches
+.SimulinkProject/
+slprj/
+*.slxc
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+.DS_Store
