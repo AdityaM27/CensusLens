@@ -38,7 +38,7 @@ Following this structured script will help you transition from a **7/10** (descr
 
 > *"Mam, here on Tab 1, we see the executive dashboard summarizing all **640 official districts across 35 States and Union Territories**.*
 >
-> *Across the top, our KPI cards show the national baseline: **1.21 Billion total population**, **164.5 Million children aged 0 to 6**, a national child share of **13.59%**, and a national literacy rate of **73%**.*
+> *Across the top, our KPI cards show the national executive baseline: **1.21 Billion total population**, **481.89 Million active workforce** (a 39.8% participation rate), India's benchmark **Sex Ratio of 943 females per 1,000 males**, and a national literacy rate of **63%** across **640 districts**.*
 >
 > *On the left, we built an interactive demographic benchmark. If I select any district—for example, **Kupwara in Jammu & Kashmir** or **Pune in Maharashtra**—the system benchmarks its 6 core demographic rates against the national average:*
 > - *Child Share, Literacy Rate, SC Share, ST Share, Overall Worker Ratio, and Main Worker Ratio.*
@@ -129,15 +129,25 @@ Following this structured script will help you transition from a **7/10** (descr
 
 ---
 
+### Q6: *"Why did you showcase Total Workforce and Sex Ratio in the main KPI cards?"*
+> **Answer**:
+> *"Mam, we chose Total Workforce (481.89 Million, 39.8% participation) and National Sex Ratio (943 females per 1,000 males) because they represent the two most critical macro-indicators of national health alongside population and literacy:*
+> 1. *Total Workforce captures the productive economic engine of the country.*
+> 2. *Sex Ratio captures gender equity and demographic balance across India's districts.*
+> *Combined with Total Population (1.21B) and National Literacy (63%), they provide a complete executive overview at a single glance."*
+
+---
+
 ## 4. Cheat-Sheet: Key Numbers to Remember
 
 If she asks for any specific number, you will have it memorized instantly:
 
 - **Total Districts**: `640`
 - **Total Population**: `1,210,854,977` (~1.21 Billion)
-- **Children Aged 0-6**: `164,515,253` (~164.5 Million)
-- **National Child Share**: `13.59%`
-- **National Literacy Rate**: `73.0%`
+- **Total Workforce**: `481,888,868` (~481.89 Million, `39.8%` participation)
+- **National Sex Ratio**: `943` Females per 1,000 Males
+- **Children Aged 0-6**: `164,515,253` (~164.5 Million, `13.59%` child share)
+- **National Literacy**: `763,638,812` (~`63.07%` of total population)
 - **PCA Variance Captured**: `PC1 = 39.7%`, `PC2 = 25.1%` (Top 2 components explain over **64.8%**; first 5 explain **97.6%**)
 - **Cluster 1**: `125 Districts` (Tribal/Agrarian, ST Share ~66.3%)
 - **Cluster 2**: `207 Districts` (High Child Dependency ~16.5%, Literacy ~54.3%)

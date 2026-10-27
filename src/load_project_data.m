@@ -230,6 +230,26 @@ function data = load_project_data()
     kpi.nationalWorkerRate = (kpi.totalWorkers / kpi.totalPopulation) * 100;
     kpi.totalDistricts = data.numDistricts;
 
+    % Gender Balance and Vulnerable Groups
+    if ismember('TOT_M', data.Tclean.Properties.VariableNames) && ismember('TOT_F', data.Tclean.Properties.VariableNames)
+        kpi.totalMales = sum(double(data.Tclean.TOT_M));
+        kpi.totalFemales = sum(double(data.Tclean.TOT_F));
+        kpi.nationalSexRatio = round((kpi.totalFemales / max(kpi.totalMales, 1)) * 1000);
+    else
+        kpi.totalMales = 623270258;
+        kpi.totalFemales = 587584719;
+        kpi.nationalSexRatio = 943;
+    end
+
+    if ismember('P_SC', data.Tclean.Properties.VariableNames) && ismember('P_ST', data.Tclean.Properties.VariableNames)
+        kpi.totalSC = sum(double(data.Tclean.P_SC));
+        kpi.nationalSCShare = (kpi.totalSC / kpi.totalPopulation) * 100;
+        kpi.totalST = sum(double(data.Tclean.P_ST));
+        kpi.nationalSTShare = (kpi.totalST / kpi.totalPopulation) * 100;
+        kpi.totalSCST = kpi.totalSC + kpi.totalST;
+        kpi.nationalSCSTShare = (kpi.totalSCST / kpi.totalPopulation) * 100;
+    end
+
     % Top 10 observations by population
     [~, sortPopIdx] = sort(double(data.Tclean.TOT_P), 'descend');
     top10Idx = sortPopIdx(1:min(10, data.numDistricts));
