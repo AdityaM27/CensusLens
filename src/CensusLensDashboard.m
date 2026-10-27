@@ -329,71 +329,88 @@ function buildFinalResultsTab(parentTab, data, CARD_BG, ACCENT_BLUE, ACCENT_ORAN
 
     %% Bottom Section: Dynamic 5-Year Scenario Forecasting Engine
     fcPanel = uipanel(tabGrid, 'BackgroundColor', CARD_BG, ...
-        'Title', 'Final Output 3: Dynamic 5-Year Scenario Forecasting Engine (P_t = P_0 * (1 + r)^t)', ...
+        'Title', 'Final Output 3: Dynamic 5-Year Resource Demand Forecasting (Illustrative Scenario)', ...
         'FontName', FONT_FAMILY, 'FontWeight', 'bold');
-    fcLayout = uigridlayout(fcPanel, [2, 1]);
-    fcLayout.RowHeight = {40, '1x'};
+    fcLayout = uigridlayout(fcPanel, [3, 1]);
+    fcLayout.RowHeight = {76, '1x', '1x'};
     fcLayout.Padding = [10, 8, 10, 8];
 
     % Controls Top Bar
-    ctrlGrid = uigridlayout(fcLayout, [1, 5]);
-    ctrlGrid.ColumnWidth = {180, 100, 110, 260, '1x'};
+    ctrlGrid = uigridlayout(fcLayout, [2, 6]);
+    ctrlGrid.ColumnWidth = {150, 85, 145, 85, 130, '1x'};
     ctrlGrid.Padding = [0, 0, 0, 0];
 
     uilabel(ctrlGrid, 'Text', 'Annual Growth Rate (r):', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
     rateSpinner = uispinner(ctrlGrid, 'Limits', [-3.0, 5.0], 'Value', 2.0, 'Step', 0.1, ...
         'ValueDisplayFormat', '%.1f%%', 'FontName', FONT_FAMILY);
 
-    btnReset = uibutton(ctrlGrid, 'push', 'Text', 'Reset (2.0%)', 'FontName', FONT_FAMILY);
+    uilabel(ctrlGrid, 'Text', 'Target Coverage (%):', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    coverageSpinner = uispinner(ctrlGrid, 'Limits', [0, 100], 'Value', 100, 'Step', 5, 'ValueDisplayFormat', '%.0f%%', 'FontName', FONT_FAMILY);
+    uilabel(ctrlGrid, 'Text', 'Planned Seats / Centre:', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    seatsSpinner = uispinner(ctrlGrid, 'Limits', [1, 500], 'Value', 40, 'Step', 1, 'ValueDisplayFormat', '%.0f', 'FontName', FONT_FAMILY);
 
     uilabel(ctrlGrid, 'Text', 'Trajectory District:', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
     fcDistDrop = uidropdown(ctrlGrid, 'Items', cellstr(data.districtKeys), 'Value', char(data.districtKeys(1)), ...
         'FontName', FONT_FAMILY);
+    uilabel(ctrlGrid, 'Text', 'Planned Staff / Centre:', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    staffSpinner = uispinner(ctrlGrid, 'Limits', [1, 20], 'Value', 2, 'Step', 1, 'ValueDisplayFormat', '%.0f', 'FontName', FONT_FAMILY);
+    btnReset = uibutton(ctrlGrid, 'push', 'Text', 'Reset assumptions', 'FontName', FONT_FAMILY);
+    note = uilabel(ctrlGrid, 'Text', 'All ratios are illustrative and editable; they are not official standards.', 'FontName', FONT_FAMILY, 'FontSize', 9, 'FontAngle', 'italic', 'FontColor', [0.65, 0.35, 0.05], 'WordWrap', 'on');
+    note.Layout.Column = [5 6];
 
-    % Lower: Forecast Trend Chart + Forecast Table
+    % Two linked resource-demand charts and a selected-district annual table.
     fcMidGrid = uigridlayout(fcLayout, [1, 2]);
-    fcMidGrid.ColumnWidth = {'1.1x', '1.2x'};
+    fcMidGrid.ColumnWidth = {'1x', '1x'};
     fcMidGrid.Padding = [0, 0, 0, 0];
+    trendPanel = uipanel(fcMidGrid, 'BackgroundColor', [1, 1, 1], 'Title', 'Projected Children and Required Centres', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    trendLayout = uigridlayout(trendPanel, [1, 1]); trendLayout.Padding = [8, 6, 8, 6];
+    axTrend = uiaxes(trendLayout); axTrend.FontName = FONT_FAMILY;
+    demandPanel = uipanel(fcMidGrid, 'BackgroundColor', [1, 1, 1], 'Title', 'Required Seats and Staff', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    demandLayout = uigridlayout(demandPanel, [1, 1]); demandLayout.Padding = [8, 6, 8, 6];
+    axDemand = uiaxes(demandLayout); axDemand.FontName = FONT_FAMILY;
+    tablePanel = uipanel(fcLayout, 'BackgroundColor', [1, 1, 1], 'Title', 'Annual Required Resources — Additional Need Unavailable Without Capacity Data', 'FontName', FONT_FAMILY, 'FontWeight', 'bold');
+    tableLayout = uigridlayout(tablePanel, [1, 1]); tableLayout.Padding = [6, 6, 6, 6];
+    fcTableUI = uitable(tableLayout, 'FontName', FONT_FAMILY, 'FontSize', 10);
 
-    axTrend = uiaxes(fcMidGrid);
-    axTrend.FontName = FONT_FAMILY;
-
-    fcTableUI = uitable(fcMidGrid, 'FontName', FONT_FAMILY, 'FontSize', 11);
-
-    % Real-time dynamic recalculation callback
-    recalcForecast = @() updateForecastEngine(rateSpinner.Value / 100, fcDistDrop.Value, data, axTrend, fcTableUI, ACCENT_BLUE);
+    % Every control updates both charts and the required-resource table.
+    recalcForecast = @() updateForecastEngine(rateSpinner.Value / 100, fcDistDrop.Value, coverageSpinner.Value / 100, seatsSpinner.Value, staffSpinner.Value, data, axTrend, axDemand, fcTableUI, ACCENT_BLUE, ACCENT_ORANGE);
     rateSpinner.ValueChangedFcn = @(~, ~) recalcForecast();
-    fcDistDrop.ValueChangedFcn  = @(~, ~) recalcForecast();
-    btnReset.ButtonPushedFcn    = @(~, ~) setRateAndRecalc(rateSpinner, 2.0, recalcForecast);
+    fcDistDrop.ValueChangedFcn = @(~, ~) recalcForecast();
+    coverageSpinner.ValueChangedFcn = @(~, ~) recalcForecast();
+    seatsSpinner.ValueChangedFcn = @(~, ~) recalcForecast();
+    staffSpinner.ValueChangedFcn = @(~, ~) recalcForecast();
+    btnReset.ButtonPushedFcn = @(~, ~) resetResourceAssumptions(rateSpinner, coverageSpinner, seatsSpinner, staffSpinner, recalcForecast);
     recalcForecast();
-
 end
 
-function setRateAndRecalc(spinner, val, recalcFn)
-    spinner.Value = val;
+function resetResourceAssumptions(rateSpinner, coverageSpinner, seatsSpinner, staffSpinner, recalcFn)
+    rateSpinner.Value = 2.0; coverageSpinner.Value = 100; seatsSpinner.Value = 40; staffSpinner.Value = 2;
     recalcFn();
 end
 
-function updateForecastEngine(rate, distKey, data, axTrend, uiTab, col)
-    [fcTable, pMat, sData] = calculate_forecast(data.Tclean.P_06, data.districtNames, rate, 5);
-    uiTab.Data = fcTable;
+function updateForecastEngine(rate, distKey, coverage, seatsPerCentre, staffPerCentre, data, axTrend, axDemand, uiTab, trendCol, demandCol)
+    [demandTable, summary] = calculate_resource_demand(data.Tclean.P_06, data.districtNames, data.districtKeys, rate, 5, coverage, seatsPerCentre, staffPerCentre);
+    idx = find(data.districtKeys == string(distKey), 1); if isempty(idx), idx = 1; end
+    selectedRows = demandTable(demandTable.DistrictKey == string(data.districtKeys(idx)), :);
+    uiTab.Data = selectedRows(:, {'Year', 'ProjectedChildren_0_6', 'RequiredSeats', 'RequiredCentres', 'RequiredStaff', 'ExistingCapacityData', 'AdditionalCentres', 'AdditionalStaff'});
+    years = selectedRows.Year;
 
-    idx = find(data.districtKeys == string(distKey), 1);
-    if isempty(idx), idx = 1; end
+    cla(axTrend); yyaxis(axTrend, 'left');
+    plot(axTrend, years, selectedRows.ProjectedChildren_0_6 / 1e3, '-o', 'Color', trendCol, 'LineWidth', 2.2, 'MarkerFaceColor', trendCol);
+    axTrend.YLabel.String = 'Projected children aged 0-6 (thousands)';
+    yyaxis(axTrend, 'right');
+    plot(axTrend, years, selectedRows.RequiredCentres, '-s', 'Color', demandCol, 'LineWidth', 2, 'MarkerFaceColor', demandCol);
+    axTrend.YLabel.String = 'Illustrative required centres';
+    axTrend.XTick = 0:5; axTrend.XLabel.String = 'Scenario year (0 = baseline)';
+    title(axTrend, sprintf('%s: cohort and centre requirement', char(data.districtNames(idx))));
+    legend(axTrend, {'Projected children', 'Required centres'}, 'Location', 'northwest'); axTrend.XGrid = 'on'; axTrend.YGrid = 'on';
 
-    baseVal = double(data.Tclean.P_06(idx));
-    traj = [baseVal, pMat(idx, :)];
-    years = 0:5;
-
-    cla(axTrend);
-    plot(axTrend, years, traj / 1e3, '-bo', 'LineWidth', 2.2, 'MarkerFaceColor', col, 'MarkerSize', 7);
-    axTrend.XTick = 0:5;
-    axTrend.XTickLabel = {'Baseline', 'Yr 1', 'Yr 2', 'Yr 3', 'Yr 4', 'Yr 5'};
-    axTrend.XLabel.String = 'Projection Horizon (Years)';
-    axTrend.YLabel.String = 'Children Aged 0-6 (Thousands)';
-    title(axTrend, sprintf('%s: 5-Year Trajectory at r = %.1f%% per year', char(data.districtNames(idx)), rate * 100));
-    axTrend.XGrid = 'on';
-    axTrend.YGrid = 'on';
+    cla(axDemand); b = bar(axDemand, years, [selectedRows.RequiredSeats, selectedRows.RequiredStaff], 'grouped');
+    b(1).FaceColor = [0.20, 0.55, 0.82]; b(2).FaceColor = [0.20, 0.68, 0.45];
+    axDemand.XTick = years'; axDemand.XLabel.String = 'Scenario year (0 = baseline)'; axDemand.YLabel.String = 'Illustrative required count';
+    title(axDemand, sprintf('%.0f%% coverage | %.0f seats/centre | %.0f staff/centre', coverage * 100, seatsPerCentre, staffPerCentre));
+    legend(axDemand, {'Required seats', 'Required staff'}, 'Location', 'northwest'); axDemand.XGrid = 'on'; axDemand.YGrid = 'on';
+    uiTab.Tooltip = summary.AssumptionNote;
 end
 
 function updateResourceInspector(key, data, lChild, lShare, lProxy)
